@@ -31,14 +31,22 @@ const meterWidth = (tokens: number) =>
 
 export function StatsPanel({ conversation, conversations, lastStats, open }: StatsPanelProps) {
   const { input, output } = conversationTotals(conversation)
-  const used = input + output
+  const used = conversation.usage?.totalTokens ?? input + output
   const recent = conversation.messages.slice(-24)
   const maxTokens = Math.max(1, ...recent.map((m) => m.tokens))
 
-  const allTokens = conversations.reduce((sum, c) => {
-    const t = conversationTotals(c)
-    return sum + t.input + t.output
-  }, 0)
+  const allTotals = conversations.reduce(
+    (totals, conversation) => {
+      const current = conversationTotals(conversation)
+      return { input: totals.input + current.input, output: totals.output + current.output }
+    },
+    { input: 0, output: 0 },
+  )
+  const allTokens = conversations.reduce(
+    (sum, conversation) =>
+      sum + (conversation.usage?.totalTokens ?? conversationTotals(conversation).input + conversationTotals(conversation).output),
+    0,
+  )
   const allCost = conversations.reduce((sum, c) => sum + conversationCost(c), 0)
 
   return (
@@ -121,6 +129,10 @@ export function StatsPanel({ conversation, conversations, lastStats, open }: Sta
         <table className="w-full font-mono text-xs tabular-nums">
           <tbody className="[&_tr+tr_td]:border-t [&_tr+tr_td]:border-[#26292e] [&_td]:py-1.5 [&_td:last-child]:text-right">
             <tr>
+              <td>Model</td>
+              <td>{lastStats?.model ?? '—'}</td>
+            </tr>
+            <tr>
               <td>Output tokens</td>
               <td>{lastStats ? formatNumber(lastStats.tokens) : '—'}</td>
             </tr>
@@ -141,6 +153,9 @@ export function StatsPanel({ conversation, conversations, lastStats, open }: Sta
       <Card title="All conversations">
         <p className="font-mono text-[26px] leading-tight font-semibold tabular-nums">
           {formatNumber(allTokens)}
+        </p>
+        <p className="font-mono text-xs text-[#8b9099] tabular-nums">
+          {`Prompt ${formatNumber(allTotals.input)} · Completion ${formatNumber(allTotals.output)}`}
         </p>
         <p className="font-mono text-xs text-[#8b9099] tabular-nums">
           {`$${allCost.toFixed(4)} across ${conversations.length} chats`}

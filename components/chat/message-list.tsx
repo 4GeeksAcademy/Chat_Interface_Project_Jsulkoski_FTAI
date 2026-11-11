@@ -8,11 +8,11 @@ const SUGGESTIONS = ['Summarize a long article', 'Help me name a project', 'Expl
 
 type MessageListProps = {
   messages: Message[]
-  streamingId: string | null
+  isLoading: boolean
   onSuggestion: (text: string) => void
 }
 
-export function MessageList({ messages, streamingId, onSuggestion }: MessageListProps) {
+export function MessageList({ messages, isLoading, onSuggestion }: MessageListProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -71,16 +71,15 @@ export function MessageList({ messages, streamingId, onSuggestion }: MessageList
               )}
             >
               {m.content}
-              {m.id === streamingId && (
-                <span
-                  aria-hidden="true"
-                  className="ml-0.5 inline-block h-[15px] w-[7px] animate-pulse bg-[#f5a524] align-text-bottom"
-                />
-              )}
             </div>
           </article>
         )
       })}
+      {isLoading && (
+        <p role="status" className="mx-auto w-full max-w-[720px] text-xs text-[#8b9099]">
+          Assistant is thinking…
+        </p>
+      )}
     </div>
   )
 }
