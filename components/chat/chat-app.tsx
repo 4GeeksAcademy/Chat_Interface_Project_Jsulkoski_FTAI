@@ -16,7 +16,7 @@ import { StatsPanel } from './stats-panel'
 type Drawer = 'history' | 'stats' | null
 
 const STORAGE_KEY = 'groq-chat-session'
-const MODEL = 'openai/gpt-oss-20b'
+const MODEL = 'qwen/qwen3.8-27b'
 
 type PersistedSession = {
   conversations: Conversation[]

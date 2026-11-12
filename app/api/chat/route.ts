@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 
-const MODEL = 'openai/gpt-oss-20b'
+const MODEL = 'qwen/qwen3.8-27b'
 
 type ChatMessage = {
   role: 'user' | 'assistant'
@@ -61,8 +61,7 @@ export async function POST(request: Request) {
       body: JSON.stringify({
         model: MODEL,
         messages,
-        max_completion_tokens: 512,
-        reasoning_effort: 'low',
+        max_tokens: 512,
       }),
     })
     const data = (await response.json().catch(() => null)) as GroqResponse | null
